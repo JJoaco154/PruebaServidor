@@ -1,24 +1,25 @@
-// client-chat.js
 const net = require("net");
 const readline = require("readline");
+const fs = require("fs");
 
 const HOST = "localhost";
 const PORT = 3000;
 
+const logFile = "chat_cliente.txt"; // archivo donde guardar el chat
+
 const client = net.createConnection({ host: HOST, port: PORT }, () => {
     console.log("[CLI] Conectado al servidor de chat");
-
-    client.write("Mensaje 1:\n");
-    client.write("Mensaje 2:\n");
-    client.write("Mensaje 3:\n");
 });
 
-// Mostrar mensajes del servidor
+// Mostrar mensajes del servidor y guardarlos
 client.on("data", (data) => {
-    console.log(data.toString().trim());
+    const message = data.toString().trim();
+    console.log(message);
+
+  // Guardar en archivo
+    fs.appendFileSync(logFile, message + "\n");
 });
 
-// Manejar desconexión
 client.on("end", () => {
     console.log("[CLI] Desconectado del servidor");
 });
@@ -31,4 +32,7 @@ const rl = readline.createInterface({
 
 rl.on("line", (line) => {
     client.write(line);
+
+  // también guardo lo que yo escribo
+    fs.appendFileSync(logFile, "[Yo] " + line + "\n");
 });
